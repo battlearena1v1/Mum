@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Туған Күніңмен, Мама! ❤️</title>
+    <!-- Подключаем Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключаем красивые шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Библиотека для праздничного конфетти -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #fff0f5 0%, #ffe4e1 50%, #fdf5e6 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, .serif-font {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Анимация плавающих сердечек на фоне */
+        .floating-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .heart-particle {
+            position: absolute;
+            bottom: -50px;
+            animation: floatUp linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(0.8);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-110vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Плавное появление карточек */
+        .fade-in {
+            animation: fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Тряска при неверном пароле */
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        /* Стеклянный эффект для карточек */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 50px rgba(225, 29, 72, 0.12);
+        }
+
+        /* Убегающая кнопка Нет */
+        #no-btn {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 relative text-gray-800">
+
+    <!-- =====================================================================
+         🎵 АУДИО ПЛЕЕР (ДЛЯ СВОЕЙ МУЗЫКИ)
+         Если хочешь поставить свою песню MP3, укажи название файла или ссылку 
+         в атрибуте src="" ниже (например: src="happy-birthday.mp3").
+         Если файл не найден или не указан, сайт АВТОМАТИЧЕСКИ сыграет 
+         красивую встроенную мелодию "Happy Birthday"!
+    ====================================================================== -->
+    <audio id="custom-audio" loop preload="auto" src=""></audio>
+
+    <!-- Анимированный фон с сердечками и блестками -->
+    <div id="floating-bg" class="floating-bg"></div>
+
+    <!-- Кнопка включения/выключения звука (появляется после входа) -->
+    <button id="music-toggle" onclick="toggleMusic()" class="hidden fixed top-4 right-4 z-50 bg-white/90 hover:bg-white text-rose-600 p-3 rounded-full shadow-lg border border-rose-200 transition-transform active:scale-95 flex items-center gap-2">
+        <span id="music-icon" class="text-xl">🔊</span>
+        <span class="text-xs font-semibold pr-1 hidden sm:inline">Музыка</span>
+    </button>
+
+    <!-- =====================================================================
+         ЭКРАН 1: ВВОД ПАРОЛЯ (ДАТА РОЖДЕНИЯ)
+    ====================================================================== -->
+    <div id="screen-login" class="glass-card rounded-3xl p-7 sm:p-10 max-w-md w-full text-center relative z-10 fade-in">
+        <div class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+            <span class="text-4xl animate-bounce">🌷</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-bold text-rose-700 mb-2">
+            Сәлем Мама! ❤️
+        </h1>
+        <p class="text-gray-600 text-sm sm:text-base mb-6">
+            Сіз үшін ерекше мерекелік тосын сый дайындалды. Өтінемін, бұл сіз екеніңізді растаңыз!
+        </p>
+
+        <div class="text-left mb-5">
+            <label for="password-input" class="block text-sm font-bold text-rose-800 mb-2 ml-1">
+                🎂 Сіздің туған күніңіз:
+            </label>
+            <input 
+                type="text" 
+                id="password-input" 
+                placeholder="Например: 31.11" 
+                class="w-full px-4 py-3.5 rounded-2xl border-2 border-rose-200 focus:border-rose-500 focus:outline-none text-center text-lg font-semibold text-gray-800 bg-white/90 shadow-sm transition-colors"
+                onkeypress="if(event.key === 'Enter') checkPassword()"
+            >
+            <p id="error-msg" class="text-rose-600 text-xs font-semibold mt-2 text-center hidden">
+                О, қате күн! Қайталап көріңіз ❤️
+            </p>
+        </div>
+
+        <button 
+            onclick="checkPassword()" 
+            class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-rose-500/30 transform transition active:scale-95 text-lg flex items-center justify-center gap-2"
+        >
+            <span>Тосынсыйды ашыңыз</span>
+            <span>✨</span>
+        </button>
+    </div>
+
+    <!-- =====================================================================
+         ЭКРАН 2: ПОЗДРАВЛЕНИЕ И ВОПРОС ПРО ПОДАРОК ("ДА" / УБЕГАЮЩАЯ "НЕТ")
+    ====================================================================== -->
+    <div id="screen-greeting" class="glass-card rounded-3xl p-7 sm:p-10 max-w-lg w-full text-center relative z-10 hidden">
+        <div class="text-5xl mb-3 animate-pulse">🎉🎂💐</div>
+        
+        <h1 class="text-4xl sm:text-5xl font-bold text-rose-700 mb-4 leading-tight">
+            Туған күніңізбен Сізді қатты жақсы көремін ❤️
+        </h1>
+
+        <p class="text-gray-700 text-base sm:text-lg leading-relaxed mb-6">
+           Шексіз мейірімділігіңіз, қамқорлығыңыз, жылулығыңыз бен сүйіспеншілігіңіз үшін рахмет! Сізге зор денсаулық, жарқыраған көздер тілеймін және әр күніңіз қуаныш пен күлімсіреуге толы болсын! Мен сені қатты жақсы көремін! ❤️
+        </p>
+
+        <div class="bg-rose-50/90 border border-rose-200 rounded-2xl p-5 mb-6 shadow-inner">
+            <h2 class="text-2xl sm:text-3xl font-bold text-rose-800 mb-2">
+                Сіздің сыйлығыңызды көргіңіз келе ме? 🎁
+            </h2>
+            <p id="funny-hint" class="text-xs text-rose-500 font-medium h-4 transition-all">
+                Ақылмен таңдаңыз 😉
+            </p>
+
+            <!-- Контейнер для кнопок Да и Нет -->
+            <div id="buttons-area" class="relative flex items-center justify-center gap-4 mt-4 min-h-[70px]">
+                <button 
+                    onclick="showGiftScreen()" 
+                    class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg shadow-emerald-500/30 transform transition hover:scale-105 active:scale-95 text-lg z-20"
+                >
+                    Ия! 🎁
+                </button>
+
+                <button 
+                    id="no-btn" 
+                    class="bg-gray-200 text-gray-600 font-semibold py-3.5 px-7 rounded-2xl shadow border border-gray-300 text-lg select-none cursor-pointer z-20"
+                >
+                    Жоқ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ЭКРАН 3: КАРТИНКА И НАДПИСЬ "ИЩИТЕ В ЭТИХ МЕСТАХ"
+    ====================================================================== -->
+    <div id="screen-gift" class="glass-card rounded-3xl p-6 sm:p-9 max-w-xl w-full text-center relative z-10 hidden">
+        <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 text-xs font-bold px-3.5 py-1.5 rounded-full mb-3">
+            <span>🕵️‍♀️ ҚҰПИЯ Подсказка</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-bold text-rose-700 mb-2">
+            Осы жерлерден іздеңіз! 🔍✨
+        </h1>
+        <p class="text-gray-600 text-sm sm:text-base mb-5">
+            Сіздің подаркаңыз осы жерде жасырылған. Фотога мұқият қараңыз:
+        </p>
+
+        <!-- Рамка с фотографией места, где спрятан подарок -->
+        <div class="relative rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-rose-50 mb-5 group">
+            <img 
+                id="gift-image" 
+                src="20261027_101409.jpg" 
+                alt="Место с подарком" 
+                class="w-full max-h-[380px] object-cover mx-auto transition-transform duration-500 group-hover:scale-105"
+            >
+        </div>
+
+        <!-- Подсказка текстом (можно тоже поменять) -->
+        <div class="bg-white/80 rounded-2xl p-4 border border-rose-100 text-sm sm:text-base text-gray-700 mb-4 shadow-sm">
+            💡 <span id="gift-text-hint" class="font-medium">Осы жерден іздеңіз ❤️</span>
+        </div>
+
+        <!-- Удобная кнопка, чтобы прямо в браузере выбрать фотку с телефона/ПК для проверки -->
+        <div class="mt-4 pt-3 border-t border-rose-200/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
+            <span>Сіздің туған күніңізде сүйіспеншілікпен ❤️</span>
+            <label class="cursor-pointer hover:text-rose-500 underline transition-colors">
+                📷 
+                <input type="file" accept="image/*" class="hidden" onchange="previewLocalImage(event)">
+            </label>
+        </div>
+    </div>
+
+
+    <!-- =====================================================================
+         ⚙️ НАСТРОЙКИ САЙТА (МЕНЯЙ ПАРОЛЬ, КАРТИНКУ И МУЗЫКУ ЗДЕСЬ!)
+    ====================================================================== -->
+    <script>
+        // 1. ПАРОЛЬ (ДАТА РОЖДЕНИЯ МАМЫ)
+        // Можешь вписать несколько вариантов через запятую, чтобы мама точно вошла
+        // Например: день и месяц, или полную дату с годом.
+        const ALLOWED_PASSWORDS = [
+            "27.10", 
+            "27.10.1988", 
+            "2710"
+        ];
+
+        // 2. КАРТИНКА С МЕСТОМ ПОДАРКА
+        // Положи фотку рядом с этим файлом (например, назови её "gift.jpg") 
+        // и напиши тут "gift.jpg", либо вставь ссылку на картинку из интернета!
+        const GIFT_IMAGE_URL = "C:/Users/Imanali/special project/index.html/20261027_101409.jpg";
+
+        // 3. СВОЯ МУЗЫКА (НЕОБЯЗАТЕЛЬНО)
+        // Если у тебя есть свой MP3 файл (например "hb.mp3"), напиши его имя внутри кавычек.
+        // Если оставить пустым "", сайт САМ сыграет нежную мелодию "Happy Birthday"!
+        const CUSTOM_MUSIC_URL = "C:/Users/Imanali/special project/index.html/HB.mp3";
+
+        // ===================================================================
+        // ДАЛЬШЕ ИДЕТ ЛОГИКА САЙТА (можно не трогать, всё уже настроено!)
+        // ===================================================================
+
+        // Устанавливаем картинку из настроек при загрузке
+        const giftImgElement = document.getElementById('gift-image');
+        if (GIFT_IMAGE_URL) {
+            giftImgElement.src = GIFT_IMAGE_URL;
+        }
+
+        // Устанавливаем свою музыку, если указана
+        const customAudio = document.getElementById('custom-audio');
+        if (CUSTOM_MUSIC_URL) {
+            customAudio.src = CUSTOM_MUSIC_URL;
+        }
+
+        // Создаем летающие сердечки и цветочки на фоне
+        function createFloatingParticles() {
+            const container = document.getElementById('floating-bg');
+            const symbols = ['❤️', '🌸', '✨', '🌷', '💖', '🎈'];
+            for (let i = 0; i < 18; i++) {
+                const el = document.createElement('div');
+                el.className = 'heart-particle';
+                el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.fontSize = (Math.random() * 16 + 14) + 'px';
+                el.style.animationDuration = (Math.random() * 8 + 7) + 's';
+                el.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(el);
+            }
+        }
+        createFloatingParticles();
+
+        // Проверка пароля
+        function checkPassword() {
+            const inputEl = document.getElementById('password-input');
+            const errorMsg = document.getElementById('error-msg');
+            const loginCard = document.getElementById('screen-login');
+            const userValue = inputEl.value.trim().toLowerCase();
+
+            // Проверяем, совпадает ли ввод с одним из разрешенных вариантов
+            const isCorrect = ALLOWED_PASSWORDS.some(pass => pass.trim().toLowerCase() === userValue);
+
+            if (isCorrect) {
+                errorMsg.classList.add('hidden');
+                
+                // Запускаем праздничную музыку Happy Birthday!
+                startBirthdayMusic();
+                document.getElementById('music-toggle').classList.remove('hidden');
+
+                // Запускаем салют из конфетти
+                launchConfetti();
+
+                // Переключаем экран
+                loginCard.classList.add('hidden');
+                const greetingScreen = document.getElementById('screen-greeting');
+                greetingScreen.classList.remove('hidden');
+                greetingScreen.classList.add('fade-in');
+            } else {
+                // Ошибка: трясем карточку и показываем подсказку
+                errorMsg.classList.remove('hidden');
+                loginCard.classList.remove('shake');
+                void loginCard.offsetWidth; // Перезапуск CSS анимации
+                loginCard.classList.add('shake');
+            }
+        }
+
+        // ===================================================================
+        // 🏃‍♂️ ЛОГИКА УБЕГАЮЩЕЙ КНОПКИ "НЕТ" (НЕВОЗМОЖНО НАЖАТЬ)
+        // ===================================================================
+        const noBtn = document.getElementById('no-btn');
+        const funnyHint = document.getElementById('funny-hint');
+        const funnyMessages = [
+            "Эй, кнопка «Нет» сегодня не работает! 😄",
+            "Мамочка, нажимай только «ДА»! ❤️",
+            "От подарка отказаться нельзя! 🎁",
+            "Упс, кнопка убежала! 🏃‍♀️💨",
+            "Даже не пытайся нажать «Нет» 😘"
+        ];
+
+        function moveNoButton(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            const card = document.getElementById('screen-greeting');
+            const cardRect = card.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+
+            // Делаем кнопку фиксированной внутри карточки при первом побеге
+            noBtn.style.position = 'fixed';
+
+            // Вычисляем безопасные границы внутри карточки
+            const padding = 20;
+            const maxX = cardRect.width - btnRect.width - padding;
+            const maxY = cardRect.height - btnRect.height - padding;
+
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+
+            // Меняем забавную надпись
+            const randomMsg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+            funnyHint.innerText = randomMsg;
+        }
+
+        // Срабатывает при наведении мышки, касании пальцем на телефоне или попытке клика
+        noBtn.addEventListener('mouseover', moveNoButton);
+        noBtn.addEventListener('touchstart', moveNoButton, { passive: false });
+        noBtn.addEventListener('click', moveNoButton);
+
+        // ===================================================================
+        // 🎁 ПЕРЕХОД К ЭКРАНУ С ПОДАРКОМ ("ИЩИТЕ В ЭТИХ МЕСТАХ")
+        // ===================================================================
+        function showGiftScreen() {
+            launchConfetti();
+            document.getElementById('screen-greeting').classList.add('hidden');
+            const giftScreen = document.getElementById('screen-gift');
+            giftScreen.classList.remove('hidden');
+            giftScreen.classList.add('fade-in');
+        }
+
+        // Возможность быстро выбрать фото с устройства прямо в браузере
+        function previewLocalImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('gift-image').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Праздничное конфетти
+        function launchConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 90,
+                    spread: 75,
+                    origin: { y: 0.6 },
+                    colors: ['#f43f5e', '#fb7185', '#fbbf24', '#34d399', '#a78bfa']
+                });
+            }
+        }
+
+        // ===================================================================
+        // 🎹 ВСТРОЕННЫЙ СИНТЕЗАТОР МЕЛОДИИ "HAPPY BIRTHDAY TO YOU"
+        // Работает автоматически без внешних файлов!
+        // ===================================================================
+        let audioCtx = null;
+        let isMusicPlaying = false;
+        let melodyTimeout = null;
+        let usingCustomAudio = false;
+
+        // Ноты мелодии Happy Birthday (частота в Гц и длительность в секундах)
+        const hbNotes = [
+            { f: 261.63, d: 0.35 }, { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.55 }, { f: 261.63, d: 0.55 }, { f: 349.23, d: 0.55 }, { f: 329.63, d: 1.0 },
+            { f: 261.63, d: 0.35 }, { f: 261.63, d: 0.25 }, { f: 293.66, d: 0.55 }, { f: 261.63, d: 0.55 }, { f: 392.00, d: 0.55 }, { f: 349.23, d: 1.0 },
+            { f: 261.63, d: 0.35 }, { f: 261.63, d: 0.25 }, { f: 523.25, d: 0.55 }, { f: 440.00, d: 0.55 }, { f: 349.23, d: 0.55 }, { f: 329.63, d: 0.55 }, { f: 293.66, d: 0.9 },
+            { f: 466.16, d: 0.35 }, { f: 466.16, d: 0.25 }, { f: 440.00, d: 0.55 }, { f: 349.23, d: 0.55 }, { f: 392.00, d: 0.55 }, { f: 349.23, d: 1.2 }
+        ];
+
+        function startBirthdayMusic() {
+            isMusicPlaying = true;
+            updateMusicIcon();
+
+            // Если пользователь указал свой MP3-файл, пробуем играть его
+            if (CUSTOM_MUSIC_URL && customAudio.src) {
+                customAudio.play().then(() => {
+                    usingCustomAudio = true;
+                }).catch(() => {
+                    // Если MP3 не загрузился, включаем встроенную мелодию
+                    usingCustomAudio = false;
+                    playSynthLoop();
+                });
+            } else {
+                playSynthLoop();
+            }
+        }
+
+        function playSynthLoop() {
+            if (!isMusicPlaying) return;
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            let currentTime = audioCtx.currentTime + 0.1;
+            let totalDuration = 0;
+
+            hbNotes.forEach(note => {
+                playMusicBoxNote(note.f, currentTime, note.d);
+                currentTime += note.d + 0.05;
+                totalDuration += (note.d + 0.05) * 1000;
+            });
+
+            // Зацикливаем мелодию
+            melodyTimeout = setTimeout(() => {
+                if (isMusicPlaying) playSynthLoop();
+            }, totalDuration + 800);
+        }
+
+        function playMusicBoxNote(freq, startTime, duration) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            // Мягкий тембр музыкальной шкатулки / пианино
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, startTime);
+
+            gain.gain.setValueAtTime(0.001, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.25, startTime + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function toggleMusic() {
+            isMusicPlaying = !isMusicPlaying;
+            updateMusicIcon();
+
+            if (usingCustomAudio) {
+                if (isMusicPlaying) customAudio.play();
+                else customAudio.pause();
+            } else {
+                if (isMusicPlaying) {
+                    playSynthLoop();
+                } else {
+                    clearTimeout(melodyTimeout);
+                    if (audioCtx) audioCtx.suspend();
+                }
+            }
+        }
+
+        function updateMusicIcon() {
+            document.getElementById('music-icon').innerText = isMusicPlaying ? '🔊' : '🔇';
+        }
+    </script>
+</body>
+</html>
